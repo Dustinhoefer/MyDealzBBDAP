@@ -342,6 +342,40 @@
                     font-size: 14px;
                 }
                 
+                /* Custom Scrollbar Design */
+                #mydealz-popup-container ::-webkit-scrollbar {
+                    width: 12px;
+                    height: 12px;
+                }
+                
+                #mydealz-popup-container ::-webkit-scrollbar-track {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 6px;
+                }
+                
+                #mydealz-popup-container ::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.4);
+                    border-radius: 6px;
+                    border: 2px solid transparent;
+                    background-clip: padding-box;
+                }
+                
+                #mydealz-popup-container ::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.5);
+                    background-clip: padding-box;
+                }
+                
+                #mydealz-popup-container ::-webkit-scrollbar-thumb:active {
+                    background: rgba(255, 255, 255, 0.6);
+                    background-clip: padding-box;
+                }
+                
+                /* Firefox Scrollbar */
+                #mydealz-popup-container {
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.1);
+                }
+                
                 /* Click-Outside Handler - unsichtbarer Overlay */
                 .mydealz-popup-backdrop {
                     position: fixed;
@@ -482,6 +516,40 @@
                 /* Falls innen noch ein Wrapper max-width setzt */
                 ${selector} * {
                     max-width: none !important;
+                }
+                
+                /* Custom Scrollbar Design für Iframe */
+                ::-webkit-scrollbar {
+                    width: 12px;
+                    height: 12px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 6px;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.4);
+                    border-radius: 6px;
+                    border: 2px solid transparent;
+                    background-clip: padding-box;
+                }
+                
+                ::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.5);
+                    background-clip: padding-box;
+                }
+                
+                ::-webkit-scrollbar-thumb:active {
+                    background: rgba(255, 255, 255, 0.6);
+                    background-clip: padding-box;
+                }
+                
+                /* Firefox Scrollbar */
+                * {
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.1);
                 }
             `;
 
