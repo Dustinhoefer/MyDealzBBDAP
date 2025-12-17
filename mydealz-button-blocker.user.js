@@ -66,9 +66,7 @@
             // Popover-Content
             const popoverContent = document.createElement('div');
             popoverContent.className = 'popover-content flex--inline popover-content--expand';
-            popoverContent.style.width = '100%';
-            // Wichtig: volle Höhe nutzen, sonst bleibt unten "leer"
-            popoverContent.style.height = '100%';
+            popoverContent.style.width = '360px';
             popoverContent.style.display = 'flex';
             popoverContent.style.flexDirection = 'column';
             popoverContent.style.minHeight = '0';
@@ -212,10 +210,9 @@
             style.textContent = `
                 #mydealz-popup-container {
                     position: fixed;
-                    width: 90%;
-                    height: 90vh;
-                    max-width: 1400px;
-                    max-height: 90vh;
+                    width: 360px;
+                    height: 706px;
+                    max-height: 85vh;
                     background: var(--bgBaseSecondary);
                     opacity: 0;
                     transform: translateY(-10px);
@@ -606,16 +603,47 @@
                 return;
             }
             
-            // Berechne Popup-Position (zentriert auf dem Bildschirm für größeres Popup)
-            const popupWidth = Math.min(window.innerWidth * 0.9, 1400);
-            const popupHeight = Math.min(window.innerHeight * 0.9, window.innerHeight * 0.9);
-            const left = (window.innerWidth - popupWidth) / 2;
-            const top = (window.innerHeight - popupHeight) / 2;
+            // Berechne Popup-Position (direkt am Button hängend, zentriert horizontal)
+            const popupWidth = 360;
+            const popupHeight = Math.min(706, window.innerHeight * 0.85);
+            
+            // Hole aktuelle Button-Position (getBoundingClientRect für fixed positioning)
+            const button = document.getElementById('mainNavigation-alerts') || 
+                          document.querySelector('a[href="/alerts/feed"]');
+            const buttonRect = button ? button.getBoundingClientRect() : null;
+            
+            if (!buttonRect) {
+                // Fallback auf berechnete Position
+                const left = buttonPos.left + (buttonPos.width / 2) - (popupWidth / 2);
+                const top = buttonPos.top;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                let finalLeft = Math.max(10, Math.min(left, viewportWidth - popupWidth - 10));
+                let finalTop = Math.max(10, Math.min(top, viewportHeight - popupHeight - 10));
+                
+                popupContainer.style.position = 'fixed';
+                popupContainer.style.top = finalTop + 'px';
+                popupContainer.style.left = finalLeft + 'px';
+                popupContainer.style.width = popupWidth + 'px';
+                popupContainer.style.height = popupHeight + 'px';
+                popupContainer.style.zIndex = '999999';
+                return;
+            }
+            
+            // Position direkt unter dem Button (ohne Abstand)
+            const left = buttonRect.left + (buttonRect.width / 2) - (popupWidth / 2);
+            const top = buttonRect.bottom; // Direkt am unteren Rand des Buttons
+            
+            // Stelle sicher, dass Popup im Viewport bleibt
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            let finalLeft = Math.max(10, Math.min(left, viewportWidth - popupWidth - 10));
+            let finalTop = Math.max(10, Math.min(top, viewportHeight - popupHeight - 10));
             
             // Setze Position
             popupContainer.style.position = 'fixed';
-            popupContainer.style.top = top + 'px';
-            popupContainer.style.left = left + 'px';
+            popupContainer.style.top = finalTop + 'px';
+            popupContainer.style.left = finalLeft + 'px';
             popupContainer.style.width = popupWidth + 'px';
             popupContainer.style.height = popupHeight + 'px';
             popupContainer.style.zIndex = '999999';
