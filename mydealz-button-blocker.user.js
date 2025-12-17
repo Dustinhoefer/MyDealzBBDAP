@@ -135,7 +135,7 @@
             iframe.style.display = 'none'; // Versteckt bis geladen
             iframe.style.flex = '1 1 auto';
             iframe.style.minHeight = '0';
-            iframe.style.background = '#fff';
+            iframe.style.background = 'var(--bgBaseSecondary)';
             
             // Loading-Indikator
             const loadingIndicator = document.createElement('div');
@@ -149,7 +149,7 @@
             loadingIndicator.style.left = '0';
             loadingIndicator.style.right = '0';
             loadingIndicator.style.bottom = '0';
-            loadingIndicator.style.backgroundColor = '#fff';
+            loadingIndicator.style.backgroundColor = 'var(--bgBaseSecondary)';
             loadingIndicator.style.zIndex = '10';
             
             // Error-Fallback (versteckt initial)
@@ -162,7 +162,7 @@
             errorFallback.style.left = '0';
             errorFallback.style.right = '0';
             errorFallback.style.bottom = '0';
-            errorFallback.style.backgroundColor = '#fff';
+            errorFallback.style.backgroundColor = 'var(--bgBaseSecondary)';
             errorFallback.style.zIndex = '20';
             errorFallback.style.padding = '40px 20px';
             errorFallback.style.textAlign = 'center';
@@ -216,7 +216,7 @@
                     height: 90vh;
                     max-width: 1400px;
                     max-height: 90vh;
-                    background: #fff;
+                    background: var(--bgBaseSecondary);
                     opacity: 0;
                     transform: translateY(-10px);
                     transition: opacity 0.2s ease, transform 0.2s ease;
@@ -237,7 +237,7 @@
                     display: flex !important;
                     flex-direction: column !important;
                     width: 100%;
-                    background: #fff;
+                    background: var(--bgBaseSecondary);
                     min-height: 0;
                     flex: 1 1 auto;
                 }
@@ -247,7 +247,7 @@
                     justify-content: flex-end;
                     padding: 12px;
                     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-                    background: #fff;
+                    background: var(--bgBaseSecondary);
                 }
 
                 /* Entferne den Spacer unter dem Header, damit der Inhalt wirklich füllt */
@@ -270,7 +270,7 @@
                     min-height: 0 !important;
                     height: auto !important;
                     width: 100%;
-                    background: #fff;
+                    background: var(--bgBaseSecondary);
                     max-height: none !important;
                 }
                 
@@ -293,7 +293,7 @@
                     width: 100%;
                     height: 100%;
                     display: block;
-                    background: #fff;
+                    background: var(--bgBaseSecondary);
                 }
                 
                 .mydealz-popup-loading {
@@ -431,13 +431,13 @@
             doc.documentElement.style.margin = '0';
             doc.documentElement.style.padding = '0';
             doc.documentElement.style.overflow = 'auto';
-            doc.documentElement.style.background = '#fff';
+            doc.documentElement.style.background = 'var(--bgBaseSecondary)';
             doc.documentElement.style.width = '100%';
             doc.documentElement.style.height = '100%';
             doc.body.style.margin = '0';
             doc.body.style.padding = '0';
             doc.body.style.overflow = 'auto';
-            doc.body.style.background = '#fff';
+            doc.body.style.background = 'var(--bgBaseSecondary)';
             doc.body.style.width = '100%';
             doc.body.style.height = '100%';
             doc.body.style.minHeight = '100%';
@@ -452,7 +452,7 @@
             }
             styleEl.textContent = `
                 html, body {
-                    background: #fff !important;
+                    background: var(--bgBaseSecondary) !important;
                     width: 100% !important;
                     height: 100% !important;
                     margin: 0 !important;
@@ -464,7 +464,7 @@
                     max-width: none !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                    background: #fff !important;
+                    background: var(--bgBaseSecondary) !important;
                 }
                 ${selector} {
                     width: 100% !important;
