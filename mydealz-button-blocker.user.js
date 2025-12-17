@@ -67,10 +67,18 @@
             const popoverContent = document.createElement('div');
             popoverContent.className = 'popover-content flex--inline popover-content--expand';
             popoverContent.style.width = '100%';
+            // Wichtig: volle Höhe nutzen, sonst bleibt unten "leer"
+            popoverContent.style.height = '100%';
+            popoverContent.style.display = 'flex';
+            popoverContent.style.flexDirection = 'column';
+            popoverContent.style.minHeight = '0';
             
             // Flex Container
             const flexContainer = document.createElement('div');
             flexContainer.className = 'flex flex--dir-col height--min-100 width--all-12';
+            flexContainer.style.flex = '1 1 auto';
+            flexContainer.style.minHeight = '0';
+            flexContainer.style.height = '100%';
             
             // Header mit Close-Button (im MyDealz-Stil)
             const navDropDownHead = document.createElement('div');
@@ -113,6 +121,10 @@
             popupContent.id = 'mydealz-popup-content';
             popupContent.className = 'flex flex--dir-col notifications-content overscroll--containY';
             popupContent.style.position = 'relative';
+            // Fülle den Container komplett
+            popupContent.style.flex = '1 1 auto';
+            popupContent.style.minHeight = '0';
+            popupContent.style.width = '100%';
             
             // Iframe für die Seite
             const iframe = document.createElement('iframe');
@@ -121,6 +133,9 @@
             iframe.style.height = '100%';
             iframe.style.border = 'none';
             iframe.style.display = 'none'; // Versteckt bis geladen
+            iframe.style.flex = '1 1 auto';
+            iframe.style.minHeight = '0';
+            iframe.style.background = '#fff';
             
             // Loading-Indikator
             const loadingIndicator = document.createElement('div');
@@ -201,10 +216,14 @@
                     height: 90vh;
                     max-width: 1400px;
                     max-height: 90vh;
+                    background: #fff;
                     opacity: 0;
                     transform: translateY(-10px);
                     transition: opacity 0.2s ease, transform 0.2s ease;
                     pointer-events: none;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
                 }
                 
                 #mydealz-popup-container.popover--visible {
@@ -215,8 +234,12 @@
                 
                 #mydealz-popup-container .popover-content {
                     height: 100%;
-                    display: flex;
-                    flex-direction: column;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    width: 100%;
+                    background: #fff;
+                    min-height: 0;
+                    flex: 1 1 auto;
                 }
                 
                 #mydealz-popup-container .navDropDown-head {
@@ -224,13 +247,40 @@
                     justify-content: flex-end;
                     padding: 12px;
                     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                    background: #fff;
+                }
+
+                /* Entferne den Spacer unter dem Header, damit der Inhalt wirklich füllt */
+                #mydealz-popup-container .space--h-2.space--v-2.hide--empty {
+                    display: none !important;
+                }
+
+                /* Der innere Flex-Container muss die volle Höhe nutzen, sonst bleibt unten „leer“ */
+                #mydealz-popup-container .popover-content > .flex.flex--dir-col {
+                    flex: 1 1 auto;
+                    min-height: 0;
+                    height: 100%;
+                    width: 100%;
                 }
                 
                 #mydealz-popup-container .notifications-content {
-                    flex: 1;
+                    flex: 1 1 auto !important;
                     overflow: hidden;
                     position: relative;
-                    min-height: 0;
+                    min-height: 0 !important;
+                    height: auto !important;
+                    width: 100%;
+                    background: #fff;
+                    max-height: none !important;
+                }
+                
+                #mydealz-popup-content {
+                    flex: 1 1 auto !important;
+                    min-height: 0 !important;
+                    height: auto !important;
+                    width: 100% !important;
+                    display: flex !important;
+                    flex-direction: column !important;
                 }
                 
                 #mydealz-popup-container .popover-content {
@@ -240,6 +290,10 @@
                 #mydealz-popup-iframe {
                     flex: 1;
                     min-height: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: block;
+                    background: #fff;
                 }
                 
                 .mydealz-popup-loading {
@@ -331,6 +385,118 @@
         } catch (error) {
             console.error('[MyDealz Button Blocker] Fehler beim Laden des Contents:', error);
             throw error;
+        }
+    }
+
+    // Iframe DOM manipulieren: alles entfernen bis auf den Pfad zum Ziel-Element
+    function pruneIframeToSelector(iframeElement, selector) {
+        try {
+            if (!iframeElement) {
+                return { status: 'no_iframe' };
+            }
+
+            const doc = iframeElement.contentDocument || (iframeElement.contentWindow && iframeElement.contentWindow.document);
+            if (!doc || !doc.body) {
+                console.warn('[MyDealz Button Blocker] Kein Zugriff auf Iframe-Dokument (same-origin?)');
+                return { status: 'no_access' };
+            }
+
+            // Schon gefiltert? (dann nicht erneut zerstören)
+            if (doc.body.dataset.mydealzPruned === 'true') {
+                const existingTarget = doc.querySelector(selector);
+                return { status: existingTarget ? 'already' : 'already_missing' };
+            }
+
+            const target = doc.querySelector(selector);
+            if (!target) {
+                return { status: 'not_found' };
+            }
+
+            // Entferne alles, was NICHT den Target enthält (rekursiv entlang des Pfades)
+            const prune = (root) => {
+                const children = Array.from(root.children);
+                for (const child of children) {
+                    if (child === target || child.contains(target)) {
+                        if (child !== target) {
+                            prune(child);
+                        }
+                    } else {
+                        child.remove();
+                    }
+                }
+            };
+            prune(doc.body);
+
+            // Minimaler Reset für sauberes Layout
+            doc.documentElement.style.margin = '0';
+            doc.documentElement.style.padding = '0';
+            doc.documentElement.style.overflow = 'auto';
+            doc.documentElement.style.background = '#fff';
+            doc.documentElement.style.width = '100%';
+            doc.documentElement.style.height = '100%';
+            doc.body.style.margin = '0';
+            doc.body.style.padding = '0';
+            doc.body.style.overflow = 'auto';
+            doc.body.style.background = '#fff';
+            doc.body.style.width = '100%';
+            doc.body.style.height = '100%';
+            doc.body.style.minHeight = '100%';
+
+            // CSS erzwingen, damit der extrahierte Bereich wirklich die volle Breite nutzt
+            const styleId = 'mydealz-popup-prune-style';
+            let styleEl = doc.getElementById(styleId);
+            if (!styleEl) {
+                styleEl = doc.createElement('style');
+                styleEl.id = styleId;
+                (doc.head || doc.documentElement).appendChild(styleEl);
+            }
+            styleEl.textContent = `
+                html, body {
+                    background: #fff !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    overflow: auto !important;
+                }
+                body > * {
+                    width: 100% !important;
+                    max-width: none !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+                ${selector} {
+                    width: 100% !important;
+                    max-width: none !important;
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                }
+                ${selector}.space--mh-a,
+                ${selector} .space--mh-a {
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                }
+                /* Falls innen noch ein Wrapper max-width setzt */
+                ${selector} * {
+                    max-width: none !important;
+                }
+            `;
+
+            // Zusätzlich inline für Sicherheit (falls CSS von MyDealz „gewinnt“)
+            target.style.width = '100%';
+            target.style.maxWidth = 'none';
+            target.style.marginLeft = '0';
+            target.style.marginRight = '0';
+
+            doc.body.dataset.mydealzPruned = 'true';
+            console.log('[MyDealz Button Blocker] Iframe-Inhalt reduziert auf:', selector);
+            return { status: 'applied' };
+        } catch (error) {
+            console.error('[MyDealz Button Blocker] Fehler bei Iframe-DOM-Manipulation:', error);
+            return { status: 'error', error };
         }
     }
 
@@ -448,19 +614,52 @@
             iframe.onload = function() {
                 console.log('[MyDealz Button Blocker] Iframe erfolgreich geladen');
                 clearTimeout(loadTimeout);
-                
-                // Verstecke Loading-Indikator
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-                
-                // Zeige Iframe
-                iframe.style.display = 'block';
-                
+
                 // Verstecke Error-Fallback falls sichtbar
                 if (errorFallback) {
                     errorFallback.style.display = 'none';
                 }
+
+                const selector = '.listLayout-main.space--mh-a';
+                let attempts = 0;
+                const maxAttempts = 20; // ~5s
+                const attemptIntervalMs = 250;
+
+                const finalizeShow = (reason) => {
+                    console.log('[MyDealz Button Blocker] Iframe anzeigen:', reason);
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                    iframe.style.display = 'block';
+                };
+
+                const tryPrune = () => {
+                    attempts += 1;
+                    const result = pruneIframeToSelector(iframe, selector);
+
+                    if (result.status === 'applied' || result.status === 'already') {
+                        finalizeShow('filtered');
+                        return;
+                    }
+
+                    // Wenn wir nicht manipulieren können, zeigen wir trotzdem die Seite
+                    if (result.status === 'no_access' || result.status === 'no_iframe' || result.status === 'error') {
+                        console.warn('[MyDealz Button Blocker] Iframe nicht filterbar:', result.status);
+                        finalizeShow(result.status);
+                        return;
+                    }
+
+                    if (attempts >= maxAttempts) {
+                        console.warn('[MyDealz Button Blocker] Ziel-DIV nicht gefunden, zeige komplette Seite:', selector);
+                        finalizeShow('not_found');
+                        return;
+                    }
+
+                    setTimeout(tryPrune, attemptIntervalMs);
+                };
+
+                // Kurze Verzögerung, damit JS im Iframe initial rendern kann
+                setTimeout(tryPrune, 200);
             };
             
             // Iframe Error-Event Handler
