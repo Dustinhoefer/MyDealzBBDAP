@@ -706,6 +706,34 @@
                 }
             }, 10000);
             
+            // Funktion zum Setzen von target="_blank" für alle Links im Iframe
+            function setLinksToNewTab(iframeElement) {
+                try {
+                    const doc = iframeElement.contentDocument || (iframeElement.contentWindow && iframeElement.contentWindow.document);
+                    if (!doc) {
+                        console.warn('[MyDealz Button Blocker] Kein Zugriff auf Iframe-Dokument für Link-Manipulation');
+                        return;
+                    }
+                    
+                    const links = doc.querySelectorAll('a[href]');
+                    links.forEach(link => {
+                        link.setAttribute('target', '_blank');
+                        // Verhindere auch Navigation im iframe selbst
+                        link.addEventListener('click', function(event) {
+                            const href = link.getAttribute('href');
+                            if (href && !href.startsWith('#')) {
+                                event.preventDefault();
+                                window.open(href, '_blank');
+                            }
+                        });
+                    });
+                    
+                    console.log(`[MyDealz Button Blocker] ${links.length} Links auf target="_blank" gesetzt`);
+                } catch (error) {
+                    console.error('[MyDealz Button Blocker] Fehler beim Setzen von target="_blank" für Links:', error);
+                }
+            }
+
             // Iframe Load-Event Handler
             iframe.onload = function() {
                 console.log('[MyDealz Button Blocker] Iframe erfolgreich geladen');
@@ -727,6 +755,14 @@
                         loadingIndicator.style.display = 'none';
                     }
                     iframe.style.display = 'block';
+                    
+                    // Setze alle Links auf target="_blank"
+                    setLinksToNewTab(iframe);
+                    
+                    // Wiederhole nach kurzer Verzögerung für dynamisch geladene Links
+                    setTimeout(() => {
+                        setLinksToNewTab(iframe);
+                    }, 1000);
                 };
 
                 const tryPrune = () => {
